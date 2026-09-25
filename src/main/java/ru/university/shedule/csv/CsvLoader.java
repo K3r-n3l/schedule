@@ -23,7 +23,7 @@ public final class CsvLoader {
         }
     }
 
-    public LoadResult load(Path file) throws IOException {
+    public static LoadResult load(Path file) throws IOException {
         ArrayList<Lesson> lessons = new ArrayList<>();
         ArrayList<SkippedLine> skipped = new ArrayList<>();
 
@@ -55,7 +55,7 @@ public final class CsvLoader {
         return new LoadResult(lessons, skipped);
     }
 
-    private Lesson parseLine(int lineNumber, String line) throws CsvLineException {
+    private static Lesson parseLine(int lineNumber, String line) throws CsvLineException {
         String[] parts = line.split(CsvFormat.DELIMITER, -1);
 
         if (parts.length != CsvFormat.COLUMN_COUNT) {
@@ -68,19 +68,19 @@ public final class CsvLoader {
         LessonType type = CsvFormat.parseLabelType(parts[0])
                 .orElseThrow(() -> new CsvLineException(lineNumber, CsvErrorCode.UNKNOWN_TYPE, parts[0]));
 
-        final String group = parts[GROUP.getIndex()];
-        final String subject = parts[SUBJECT.getIndex()];
-        final String room = parts[ROOM.getIndex()];
-        final String teacher = parts[TEACHER.getIndex()];
+        final String group = parts[GROUP.index()];
+        final String subject = parts[SUBJECT.index()];
+        final String room = parts[ROOM.index()];
+        final String teacher = parts[TEACHER.index()];
 
         final Lesson result = switch (type) {
             case LESSON -> new Lesson(dateTime, group, subject, room, teacher);
 
             case LECTURE -> new Lecture(dateTime, group, subject, room, teacher,
-                    parts[STREAM.getIndex()]);
+                    parts[STREAM.index()]);
 
             case PRACTICE -> new Practice(dateTime, group, subject, room, teacher,
-                    parseSubgroup(parts[SUBGROUP.getIndex()], lineNumber));
+                    parseSubgroup(parts[SUBGROUP.index()], lineNumber));
 
             case CANCELLED -> new Cancelled(dateTime, group, subject, room, teacher);
         };
@@ -95,7 +95,7 @@ public final class CsvLoader {
         return result;
     }
 
-    private LocalDateTime parseDateTime(String dateTime, int lineNumber) throws CsvLineException {
+    private static LocalDateTime parseDateTime(String dateTime, int lineNumber) throws CsvLineException {
         try {
             return LocalDateTime.parse(dateTime, CsvFormat.DATE_TIME);
         } catch (DateTimeParseException e) {
@@ -103,7 +103,7 @@ public final class CsvLoader {
         }
     }
 
-    private int parseSubgroup(String subgroup, int lineNumber) throws CsvLineException {
+    private static int parseSubgroup(String subgroup, int lineNumber) throws CsvLineException {
         try {
             return Integer.parseInt(subgroup);
         } catch (NumberFormatException e) {

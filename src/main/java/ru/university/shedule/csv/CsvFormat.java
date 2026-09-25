@@ -23,7 +23,7 @@ public final class CsvFormat {
             this.index = index;
         }
 
-        public int getIndex() { return index; }
+        public int index() { return index; }
     }
 
     public static final String DELIMITER = ";";
