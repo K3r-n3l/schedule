@@ -1,8 +1,8 @@
-package ru.university.shedule.csv;
+package ru.university.schedule.csv;
 
-import ru.university.shedule.model.*;
+import ru.university.schedule.model.*;
 
-import static ru.university.shedule.csv.CsvFormat.Fields.*;
+import static ru.university.schedule.csv.CsvFormat.Fields.*;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -65,7 +65,9 @@ public final class CsvLoader {
 
         LocalDateTime dateTime = parseDateTime(parts[DATE_TIME.ordinal()], lineNumber);
 
-        LessonType type = CsvFormat.parseLabelType(parts[0])
+
+
+        LessonKind type = CsvFormat.parseTypeLabel(parts[0])
                 .orElseThrow(() -> new CsvLineException(lineNumber, CsvErrorCode.UNKNOWN_TYPE, parts[0]));
 
         final String group = parts[GROUP.index()];

@@ -1,4 +1,4 @@
-package ru.university.shedule.csv;
+package ru.university.schedule.csv;
 
 public enum CsvErrorCode {
     WRONG_FIELD_COUNT("Неверное количество полей"),

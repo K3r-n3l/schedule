@@ -1,4 +1,4 @@
-package ru.university.shedule.model;
+package ru.university.schedule.model;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -32,7 +32,7 @@ public class Lesson {
         return errors;
     }
 
-    public LessonType getType() { return LessonType.LESSON; }
+    public LessonKind kind() { return LessonKind.LESSON; }
 
     @Override
     public String toString() {
@@ -40,7 +40,7 @@ public class Lesson {
                 formatted(dateTime, group, subject, room, teacher);
     }
 
-    public LocalDateTime getDatetime()  { return dateTime; }
+    public LocalDateTime getDateTime()  { return dateTime; }
     public String getGroup()            { return group; }
     public String getSubject()          { return subject; }
     public String getRoom()             { return room; }

@@ -1,4 +1,4 @@
-package ru.university.shedule.model;
+package ru.university.schedule.model;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -21,7 +21,7 @@ public class Practice extends Lesson implements Editable {
         return errors;
     }
 
-    @Override public LessonType getType() { return LessonType.PRACTICE; }
+    @Override public LessonKind kind() { return LessonKind.PRACTICE; }
 
     @Override
     public String toString() {

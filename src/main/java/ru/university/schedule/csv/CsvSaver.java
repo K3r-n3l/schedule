@@ -1,8 +1,8 @@
-package ru.university.shedule.csv;
+package ru.university.schedule.csv;
 
-import ru.university.shedule.model.Lecture;
-import ru.university.shedule.model.Lesson;
-import ru.university.shedule.model.Practice;
+import ru.university.schedule.model.Lecture;
+import ru.university.schedule.model.Lesson;
+import ru.university.schedule.model.Practice;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -33,8 +33,8 @@ public final class CsvSaver {
 
         // "type;dateTime;group;subject;room;teacher;stream;subgroup";
         return String.join(CsvFormat.DELIMITER,
-                CsvFormat.getTypeLabel(lesson.getType()),
-                lesson.getDatetime().format(CsvFormat.DATE_TIME),
+                CsvFormat.typeLabel(lesson.kind()),
+                lesson.getDateTime().format(CsvFormat.DATE_TIME),
                 lesson.getGroup(),
                 lesson.getSubject(),
                 lesson.getRoom(),

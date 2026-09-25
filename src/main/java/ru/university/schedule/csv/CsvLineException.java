@@ -1,4 +1,4 @@
-package ru.university.shedule.csv;
+package ru.university.schedule.csv;
 
 public class CsvLineException extends Exception {
     private final int lineNumber;

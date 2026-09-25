@@ -1,9 +1,9 @@
-package ru.university.shedule.model;
+package ru.university.schedule.model;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
-public class Lecture extends Lesson {
+public class Lecture extends Lesson implements Editable {
     protected String stream;
 
     public Lecture(LocalDateTime dateTime, String group, String subject,
@@ -21,7 +21,7 @@ public class Lecture extends Lesson {
         return errors;
     }
 
-    @Override public LessonType getType() { return LessonType.LECTURE; }
+    @Override public LessonKind kind() { return LessonKind.LECTURE; }
 
     @Override
     public String toString() {
