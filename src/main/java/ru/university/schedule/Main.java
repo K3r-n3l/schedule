@@ -36,6 +36,7 @@ import ru.university.schedule.model.Practice;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 
@@ -103,7 +104,9 @@ public class Main extends Application {
 
         TableColumn<Lesson, String> dateTimeCol = new TableColumn<>("Дата и время");
         dateTimeCol.setCellValueFactory(cd ->
-                new ReadOnlyStringWrapper(cd.getValue().getDateTime().format(CsvFormat.DATE_TIME)));
+                new ReadOnlyStringWrapper(cd.getValue().getDateTime().format(
+                        DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm")
+                )));
 
         TableColumn<Lesson, String> groupCol = new TableColumn<>("Группа");
         groupCol.setCellValueFactory(cd ->
