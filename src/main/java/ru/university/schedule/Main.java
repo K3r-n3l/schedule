@@ -233,7 +233,7 @@ public class Main extends Application {
             status("Изменено: " + updated.getSubject());
         });
     }
-
+    
     private FileChooser csvChooser(String title) {
         FileChooser chooser = new FileChooser();
         chooser.setTitle(title);
