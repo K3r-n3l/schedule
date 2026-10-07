@@ -75,7 +75,7 @@ public class AvlTree {
         return p;
     }
 
-    public static Node insert(Node p, Lesson lesson) {
+    public Node insert(Node p, Lesson lesson) {
         if (p == null) return new Node(lesson);
 
         LocalDateTime key = lesson.getDateTime();
