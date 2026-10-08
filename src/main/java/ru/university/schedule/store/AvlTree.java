@@ -21,7 +21,7 @@ public class AvlTree {
         }
     }
 
-    private Node root;
+    public Node root;
 
     private static int height(Node node) {
         return node == null ? 0 : node.height;
@@ -80,7 +80,7 @@ public class AvlTree {
 
         LocalDateTime key = lesson.getDateTime();
 
-        if (key.compareTo(p.key) < 0)
+        if (key.isAfter(p.key))
             p.left = insert(p.left, lesson);
         else
             p.right = insert(p.right, lesson);
@@ -88,7 +88,49 @@ public class AvlTree {
         return balance(p);
     }
 
-    public static void show(Node p) {
+    public Lesson find(Node p, LocalDateTime key) {
+        if (p == null) return null;
+
+        if (p.key.equals(key)) return p.value;
+
+        if (key.isAfter(p.key)) return find(p.left, key);
+        else return find(p.right, key);
+    }
+
+    private static Node findMin(Node p) {
+        return p.left != null ? findMin(p.left) : p;
+    }
+
+    private static Node removeMin(Node p) {
+        if (p.left == null)
+            return p.right;
+
+        p.left = removeMin(p.left);
+        return balance(p);
+    }
+
+    public Node remove(Node p, LocalDateTime key) {
+        if (p == null) return null;
+
+        if (p.key.isBefore(key))
+            p.left = remove(p.left, key);
+        else if (p.key.isAfter(key))
+            p.right = remove(p.right, key);
+        else if (p.key.compareTo(key) == 0) {
+            Node q = p.left;
+            Node r = p.right;
+
+            if (r == null) return q;
+            Node mn = findMin(r);
+            mn.right = removeMin(r);
+            mn.left = q;
+
+            return balance(mn);
+        }
+        return balance(p);
+    }
+
+    public void show(Node p) {
         if (p == null) return;
 
         Queue<Node> q = new LinkedList<>();
