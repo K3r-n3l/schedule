@@ -2,39 +2,35 @@ package ru.university.schedule.store;
 
 import ru.university.schedule.model.Lesson;
 
-import java.time.LocalDateTime;
-import java.util.LinkedList;
-import java.util.Queue;
+import java.util.ArrayList;
+import java.util.List;
 
 public class AvlTree {
     private static final class Node {
-        LocalDateTime key;
+        LessonKey key;
         Lesson value;
         Node left, right;
         int height;
 
-        Node(Lesson value) {
-            this.key = value.getDateTime();
+        Node(LessonKey key, Lesson value) {
+            this.key = key;
             this.value = value;
-            left = right = null;
             height = 1;
         }
     }
 
-    public Node root;
+    private Node root;
+    private int size;
 
-    private static int height(Node node) {
-        return node == null ? 0 : node.height;
-    }
+    public int size() { return size; }
 
-    private static int bfactor(Node node) {
-        return height(node.right) - height(node.left);
-    }
+    private static int height(Node p) { return p == null ? 0 : p.height; }
+    private static int balanceFactor(Node p) { return height(p.right) - height(p.left); }
 
-    private static int fixHeight(Node node) {
-        int rheight = height(node.right);
-        int lheight = height(node.left);
-        return (Math.max(rheight, lheight)) + 1;
+    private static void updateHeight(Node p) {
+        int rheight = height(p.right);
+        int lheight = height(p.left);
+        p.height = Math.max(rheight, lheight) + 1;
     }
 
     private static Node rightRotate(Node p) {
@@ -42,9 +38,8 @@ public class AvlTree {
         p.left = q.right;
         q.right = p;
 
-        fixHeight(p);
-        fixHeight(q);
-
+        updateHeight(p);
+        updateHeight(q);
         return q;
     }
 
@@ -53,48 +48,43 @@ public class AvlTree {
         q.right = p.left;
         p.left = q;
 
-        fixHeight(p);
-        fixHeight(q);
-
+        updateHeight(q);
+        updateHeight(p);
         return q;
     }
 
-    private static Node balance(Node p) {
-        fixHeight(p);
+    private static Node rebalance(Node p) {
+        updateHeight(p);
 
-        if (bfactor(p) == 2) {
-            if (bfactor(p.right) < 0)
+        if (balanceFactor(p) == 2) {
+            if (balanceFactor(p.right) < 0)
                 p.right = rightRotate(p.right);
             return leftRotate(p);
         }
-        if (bfactor(p) == -2) {
-            if (bfactor(p.left) < 0)
+        if (balanceFactor(p) == -2) {
+            if (balanceFactor(p.left) > 0)
                 p.left = leftRotate(p.left);
             return rightRotate(p);
         }
         return p;
     }
 
-    public Node insert(Node p, Lesson lesson) {
-        if (p == null) return new Node(lesson);
-
-        LocalDateTime key = lesson.getDateTime();
-
-        if (key.isAfter(p.key))
-            p.left = insert(p.left, lesson);
-        else
-            p.right = insert(p.right, lesson);
-
-        return balance(p);
+    public void add(Lesson lesson) {
+        LessonKey key = LessonKey.of(lesson);
+        root = insertNode(root, key, lesson);
+        size++;
     }
 
-    public Lesson find(Node p, LocalDateTime key) {
-        if (p == null) return null;
+    private Node insertNode(Node node, LessonKey key, Lesson value) {
+        if (node == null) return new Node(key, value);
 
-        if (p.key.equals(key)) return p.value;
+        int cmp = key.compareTo(node.key);
+        if (cmp < 0)      node.left  = insertNode(node.left, key, value);
+        else if (cmp > 0) node.right = insertNode(node.right, key, value);
+        else throw new IllegalArgumentException(
+                    "Занятие с ключом " + key + " уже существует");
 
-        if (key.isAfter(p.key)) return find(p.left, key);
-        else return find(p.right, key);
+        return rebalance(node);
     }
 
     private static Node findMin(Node p) {
@@ -106,43 +96,58 @@ public class AvlTree {
             return p.right;
 
         p.left = removeMin(p.left);
-        return balance(p);
+        return rebalance(p);
     }
 
-    public Node remove(Node p, LocalDateTime key) {
-        if (p == null) return null;
+    private Node removeNode(Node node, LessonKey key) {
+        if (node == null) return null;
 
-        if (p.key.isBefore(key))
-            p.left = remove(p.left, key);
-        else if (p.key.isAfter(key))
-            p.right = remove(p.right, key);
-        else if (p.key.compareTo(key) == 0) {
-            Node q = p.left;
-            Node r = p.right;
+        int cmp = key.compareTo(node.key);
+        if (cmp < 0)      node.left  = removeNode(node.left, key);
+        else if (cmp > 0) node.right = removeNode(node.right, key);
+        else {
+            Node leftChild = node.left;
+            Node rightChild = node.right;
+            if (rightChild == null) return leftChild;
 
-            if (r == null) return q;
-            Node mn = findMin(r);
-            mn.right = removeMin(r);
-            mn.left = q;
-
-            return balance(mn);
+            Node successor = findMin(rightChild);
+            successor.right = removeMin(rightChild);
+            successor.left  = leftChild;
+            return rebalance(successor);
         }
-        return balance(p);
+        return rebalance(node);
     }
 
-    public void show(Node p) {
-        if (p == null) return;
+    private Node findNode(Node node, LessonKey key) {
+        if (node == null) return null;
 
-        Queue<Node> q = new LinkedList<>();
-        q.offer(p);
+        int cmp = key.compareTo(node.key);
+        if (cmp < 0)  return findNode(node.left, key);
+        else if (cmp > 0) return findNode(node.right, key);
+        return node;
+    }
 
-        while (!q.isEmpty()) {
-            Node cur = q.peek();
-            System.out.println(cur.value);
+    public Lesson find(LessonKey key) {
+        return findNode(root, key).value;
+    }
 
-            if (cur.right != null) q.offer(cur.right);
-            if (cur.left != null) q.offer(cur.left);
-            q.poll();
-        }
+    public boolean remove(LessonKey key) {
+        if (find(key) == null) return false;
+        root = removeNode(root, key);
+        size--;
+        return true;
+    }
+
+    private void traversal(List<Lesson> lst, Node p) {
+        if (p == null) return ;
+        traversal(lst, p.left);
+        lst.add(p.value);
+        traversal(lst, p.right);
+    }
+
+    public List<Lesson> snapshot() {
+        List<Lesson> lst = new ArrayList<>();
+        traversal(lst, root);
+        return lst;
     }
 }

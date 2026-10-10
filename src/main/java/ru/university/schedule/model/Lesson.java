@@ -36,7 +36,7 @@ public class Lesson {
 
     @Override
     public String toString() {
-        return "Время и дата: %s; Группа: %s; Предмет: %s; Аудитория: %s; Преподаватель: %s".
+        return kind().name() + " Время и дата: %s; Группа: %s; Предмет: %s; Аудитория: %s; Преподаватель: %s".
                 formatted(dateTime, group, subject, room, teacher);
     }
 

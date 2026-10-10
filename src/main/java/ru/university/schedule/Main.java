@@ -5,15 +5,15 @@ import ru.university.schedule.model.Lecture;
 import ru.university.schedule.model.Lesson;
 import ru.university.schedule.model.Practice;
 import ru.university.schedule.store.AvlTree;
+import ru.university.schedule.store.LessonKey;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 public class Main {
     public static void main() {
-        AvlTree tree = new AvlTree();
-
         Lesson lecture = new Lecture(
-                LocalDateTime.parse("2026-06-06T12:30:00"),
+                LocalDateTime.parse("2026-06-06T14:30:00"),
                 "ИВТ-552",
                 "Программирование",
                 "7-218",
@@ -46,13 +46,20 @@ public class Main {
                 "eaa"
         );
 
-        tree.root = tree.insert(tree.root, lecture);
-        tree.root = tree.insert(tree.root, practice);
-        tree.root = tree.insert(tree.root, cancelled);
-        tree.root = tree.insert(tree.root, lesson);
+        AvlTree tree = new AvlTree();
+        tree.add(lesson);
+        tree.add(cancelled);
+        tree.add(practice);
+        tree.add(lecture);
+       // tree.show();
 
-        tree.show(tree.root);
-        tree.remove(tree.root, LocalDateTime.parse("2026-06-06T12:32:00") );
-        tree.show(tree.root);
+        List<Lesson> res = tree.snapshot();
+
+        //for (var les : res) System.out.println(les);
+
+        LessonKey key = new LessonKey(LocalDateTime.parse("2026-06-06T14:30:00"), "ИВТ-552");
+        Lesson ls = tree.find(key);
+        System.out.println(ls);
+
     }
 }
