@@ -67,22 +67,22 @@ public final class CsvLoader {
 
 
 
-        LessonKind type = CsvFormat.parseTypeLabel(parts[0])
+        LessonKind type = LessonKind.fromCsvName(parts[0])
                 .orElseThrow(() -> new CsvLineException(lineNumber, CsvErrorCode.UNKNOWN_TYPE, parts[0]));
 
-        final String group = parts[GROUP.index()];
-        final String subject = parts[SUBJECT.index()];
-        final String room = parts[ROOM.index()];
-        final String teacher = parts[TEACHER.index()];
+        final String group = parts[GROUP.index];
+        final String subject = parts[SUBJECT.index];
+        final String room = parts[ROOM.index];
+        final String teacher = parts[TEACHER.index];
 
         final Lesson result = switch (type) {
             case LESSON -> new Lesson(dateTime, group, subject, room, teacher);
 
             case LECTURE -> new Lecture(dateTime, group, subject, room, teacher,
-                    parts[STREAM.index()]);
+                    parts[STREAM.index]);
 
             case PRACTICE -> new Practice(dateTime, group, subject, room, teacher,
-                    parseSubgroup(parts[SUBGROUP.index()], lineNumber));
+                    parseSubgroup(parts[SUBGROUP.index], lineNumber));
 
             case CANCELLED -> new Cancelled(dateTime, group, subject, room, teacher);
         };

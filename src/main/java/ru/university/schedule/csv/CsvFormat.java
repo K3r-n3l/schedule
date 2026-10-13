@@ -17,13 +17,8 @@ public final class CsvFormat {
         STREAM(6),
         SUBGROUP(7);
 
-        private final int index;
-
-        Fields(int index) {
-            this.index = index;
-        }
-
-        public int index() { return index; }
+        public final int index;
+        Fields(int index) { this.index = index; }
     }
 
     public static final String DELIMITER = ";";
@@ -36,23 +31,4 @@ public final class CsvFormat {
     public static final DateTimeFormatter DATE_TIME = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
 
     private CsvFormat() { }
-
-    public static String typeLabel(LessonKind kind) {
-        return switch (kind) {
-            case LESSON    -> "lesson";
-            case LECTURE   -> "lecture";
-            case PRACTICE  -> "practice";
-            case CANCELLED -> "cancelled";
-        };
-    }
-
-    public static Optional<LessonKind> parseTypeLabel(String raw) {
-        return switch (raw) {
-            case "lesson"    -> Optional.of(LessonKind.LESSON);
-            case "lecture"   -> Optional.of(LessonKind.LECTURE);
-            case "practice"  -> Optional.of(LessonKind.PRACTICE);
-            case "cancelled" -> Optional.of(LessonKind.CANCELLED);
-            default          -> Optional.empty();
-        };
-    }
 }

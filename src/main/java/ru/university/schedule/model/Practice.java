@@ -15,13 +15,14 @@ public class Practice extends Lesson implements Editable {
     @Override
     public List<String> validate() {
         List<String> errors = super.validate();
-
-        if (subgroup < 1) { errors.add("Недопустимое значение подгруппы"); }
-
+        if (subgroup < 1) {
+            errors.add("Недопустимое значение подгруппы");
+        }
         return errors;
     }
 
-    @Override public LessonKind kind() { return LessonKind.PRACTICE; }
+    @Override
+    public LessonKind kind() { return LessonKind.PRACTICE; }
 
     @Override
     public String toString() {

@@ -4,7 +4,7 @@ import ru.university.schedule.model.Cancelled;
 import ru.university.schedule.model.Lecture;
 import ru.university.schedule.model.Lesson;
 import ru.university.schedule.model.Practice;
-import ru.university.schedule.store.AvlTree;
+import ru.university.schedule.store.AvlLessonStore;
 import ru.university.schedule.store.LessonKey;
 
 import java.time.LocalDateTime;
@@ -46,20 +46,12 @@ public class Main {
                 "eaa"
         );
 
-        AvlTree tree = new AvlTree();
-        tree.add(lesson);
-        tree.add(cancelled);
-        tree.add(practice);
-        tree.add(lecture);
-       // tree.show();
+        AvlLessonStore<LessonKey, Lesson> tree = new AvlLessonStore<>();
 
-        List<Lesson> res = tree.snapshot();
-
-        //for (var les : res) System.out.println(les);
-
-        LessonKey key = new LessonKey(LocalDateTime.parse("2026-06-06T14:30:00"), "ИВТ-552");
-        Lesson ls = tree.find(key);
-        System.out.println(ls);
+        tree.add(new LessonKey(lecture.getDateTime(), lecture.getGroup()), lecture);
+        tree.add(new LessonKey(practice.getDateTime(), practice.getGroup()), practice);
+        tree.add(new LessonKey(cancelled.getDateTime(), cancelled.getGroup()), cancelled);
+        tree.add(new LessonKey(lesson.getDateTime(), lesson.getGroup()), lesson);
 
     }
 }

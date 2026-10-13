@@ -33,7 +33,7 @@ public final class CsvSaver {
 
         // "type;dateTime;group;subject;room;teacher;stream;subgroup";
         return String.join(CsvFormat.DELIMITER,
-                CsvFormat.typeLabel(lesson.kind()),
+                lesson.kind().csvName,
                 lesson.getDateTime().format(CsvFormat.DATE_TIME),
                 lesson.getGroup(),
                 lesson.getSubject(),
