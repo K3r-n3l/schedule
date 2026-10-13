@@ -39,7 +39,7 @@ public class Main {
 
         Lesson cancelled = new Cancelled(
                 LocalDateTime.parse("2026-06-06T12:32:00"),
-                "РРРФВ",
+                "ИВТ-552",
                 "Забыл",
                 "1221",
                 "eaa"
@@ -52,6 +52,8 @@ public class Main {
         tree.add(cancelled);
         tree.add(lesson);
 
-        System.out.println(tree.size());
+        System.out.println(tree.findNearest(LocalDateTime.parse("2026-06-06T14:25:00"), "ИВТ-552"));
+        System.out.println(tree.findNearest(LocalDateTime.parse("2026-06-06T13:25:00"), "ИВТ-552"));
+
     }
 }
