@@ -1,6 +1,5 @@
 package ru.university.schedule.store;
 
-import java.util.List;
 import java.util.Optional;
 
 public interface EntityStore<K, T> {
