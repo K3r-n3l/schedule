@@ -7,6 +7,5 @@ public interface EntityStore<K, T> {
     void add(K key, T entity);
     boolean removeByKey(K key);
     Optional<T> findByKey(K key);
-    List<T> snapshot();
     int size();
 }

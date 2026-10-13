@@ -5,9 +5,7 @@ import ru.university.schedule.model.Lesson;
 import java.time.LocalDateTime;
 import java.util.Comparator;
 
-public record LessonKey(LocalDateTime dateTime, String group)
-        implements Comparable<LessonKey> {
-
+public record LessonKey(LocalDateTime dateTime, String group) implements Comparable<LessonKey> {
     public static LessonKey of(Lesson lesson) {
         return new LessonKey(lesson.getDateTime(), lesson.getGroup());
     }

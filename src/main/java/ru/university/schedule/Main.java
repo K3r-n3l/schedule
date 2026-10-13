@@ -8,7 +8,6 @@ import ru.university.schedule.store.AvlLessonStore;
 import ru.university.schedule.store.LessonKey;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 public class Main {
     public static void main() {
@@ -46,12 +45,13 @@ public class Main {
                 "eaa"
         );
 
-        AvlLessonStore<LessonKey, Lesson> tree = new AvlLessonStore<>();
+        AvlLessonStore tree = new AvlLessonStore();
 
-        tree.add(new LessonKey(lecture.getDateTime(), lecture.getGroup()), lecture);
-        tree.add(new LessonKey(practice.getDateTime(), practice.getGroup()), practice);
-        tree.add(new LessonKey(cancelled.getDateTime(), cancelled.getGroup()), cancelled);
-        tree.add(new LessonKey(lesson.getDateTime(), lesson.getGroup()), lesson);
+        tree.add(lecture);
+        tree.add(practice);
+        tree.add(cancelled);
+        tree.add(lesson);
 
+        System.out.println(tree.size());
     }
 }
