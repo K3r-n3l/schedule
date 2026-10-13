@@ -11,6 +11,8 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.Separator;
+import javafx.scene.control.Tab;
+import javafx.scene.control.TabPane;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
@@ -22,7 +24,10 @@ import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import ru.university.schedule.gui.Dialogs;
+import ru.university.schedule.gui.DisplayFormat;
+import ru.university.schedule.gui.KeyInputDialog;
 import ru.university.schedule.gui.LessonDialog;
+import ru.university.schedule.gui.TreeCanvasPanel;
 import ru.university.schedule.csv.CsvFormat;
 import ru.university.schedule.csv.CsvLoader;
 import ru.university.schedule.csv.CsvSaver;
@@ -31,16 +36,19 @@ import ru.university.schedule.model.Editable;
 import ru.university.schedule.model.Lecture;
 import ru.university.schedule.model.Lesson;
 import ru.university.schedule.model.Practice;
+import ru.university.schedule.store.AvlLessonStore;
+import ru.university.schedule.store.LessonKey;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
-
+import java.util.Optional;
+import java.util.Set;
 
 public class Main extends Application {
-    private static final double WINDOW_WIDTH = 900;
-    private static final double WINDOW_HEIGHT = 600;
+    private static final double WINDOW_WIDTH = 1000;
+    private static final double WINDOW_HEIGHT = 700;
     private static final String APP_TITLE = "Расписание занятий";
     private static final Insets PADDING_ROOT = new Insets(8);
     private static final double STATUS_SPACING = 12;
@@ -48,30 +56,112 @@ public class Main extends Application {
     private static final int DOUBLE_CLICK_COUNT = 2;
     private static final String STYLE_CANCELLED_ROW = "-fx-background-color: #ffd9d9;";
 
+    private final AvlLessonStore store = new AvlLessonStore();
+
     private final ObservableList<Lesson> items = FXCollections.observableArrayList();
     private final TableView<Lesson> table = new TableView<>(items);
 
     private Stage stage;
     private Label statusLabel;
     private Path currentFile;
+    private final TreeCanvasPanel treePanel = new TreeCanvasPanel();
+
 
     @Override
     public void start(Stage stage) {
         this.stage = stage;
 
-        Scene scene = new Scene(buildRoot(), WINDOW_WIDTH, WINDOW_HEIGHT);
+        Tab visualTab = new Tab("Визуализация AVL", buildVisualRoot());
+        visualTab.setClosable(false);
+        Tab tableTab = new Tab("Таблица расписания", buildTableRoot());
+        tableTab.setClosable(false);
+
+        Scene scene = new Scene(new TabPane(visualTab, tableTab), WINDOW_WIDTH, WINDOW_HEIGHT);
         stage.setTitle(APP_TITLE);
         stage.setScene(scene);
         stage.show();
+
+        refreshView();
     }
 
-    private VBox buildRoot() {
-        VBox root = new VBox(buildToolbar(), buildTable(), buildStatusBar());
+    // ==================== Вкладка «Визуализация AVL» ====================
+
+    private VBox buildVisualRoot() {
+        Button loadButton = new Button("Загрузить CSV");
+        loadButton.setOnAction(e -> onLoadCsv());
+
+        Button addButton = new Button("Добавить");
+        addButton.setOnAction(e -> onAdd());
+
+        Button findButton = new Button("Найти по ключу");
+        findButton.setOnAction(e -> onFindByKey());
+
+        Button nearestButton = new Button("Ближайшее занятие группы");
+        nearestButton.setOnAction(e -> onFindNearest());
+
+        Button removeButton = new Button("Удалить по ключу");
+        removeButton.setOnAction(e -> onRemoveByKey());
+
+        ToolBar toolbar = new ToolBar(loadButton, new Separator(),
+                addButton, findButton, nearestButton, removeButton);
+
+        VBox root = new VBox(toolbar, treePanel);
+        VBox.setVgrow(treePanel, Priority.ALWAYS);
+        return root;
+    }
+
+    private void onFindByKey() {
+        Optional<KeyInputDialog.KeyInput> input =
+                KeyInputDialog.show(stage, "Поиск занятия");
+        if (input.isEmpty()) return;
+
+        LessonKey key = new LessonKey(input.get().dateTime(), input.get().group());
+        Optional<Lesson> found = store.findByKey(key);
+
+        if (found.isEmpty()) {
+            Dialogs.info(stage, "Не найдено",
+                    "Занятия " + key + " нет в хранилище");
+        } else {
+            Dialogs.info(stage, "Найдено", found.get().toString());
+        }
+        refreshView();   // подсветится путь поиска
+    }
+
+    private void onFindNearest() {
+        Optional<KeyInputDialog.KeyInput> input =
+                KeyInputDialog.show(stage, "Ближайшее занятие группы");
+        if (input.isEmpty()) return;
+
+        String group = input.get().group();
+        var nearest = store.findNearest(input.get().dateTime(), group);
+
+        status(nearest
+                .map(l -> "Ближайшее у " + group + ": " + DisplayFormat.DATE_TIME.format(l.getDateTime())
+                        + ", " + l.getSubject())
+                .orElse("У группы " + group + " занятий нет"));
+        refreshView();
+    }
+
+    private void onRemoveByKey() {
+        Optional<KeyInputDialog.KeyInput> input =
+                KeyInputDialog.show(stage, "Удаление занятия");
+        if (input.isEmpty()) return;
+
+        LessonKey key = new LessonKey(input.get().dateTime(), input.get().group());
+        boolean removed = store.removeByKey(key);
+        status(removed ? "Удалено: " + key : "Ключ " + key + " отсутствовал — ничего не удалено");
+        refreshView();   // подсветится путь даже неудавшегося поиска
+    }
+
+    // ==================== Вкладка «Таблица расписания» ====================
+
+    private VBox buildTableRoot() {
+        VBox root = new VBox(buildTableToolbar(), buildTable(), buildStatusBar());
         VBox.setVgrow(table, Priority.ALWAYS);
         return root;
     }
 
-    private ToolBar buildToolbar() {
+    private ToolBar buildTableToolbar() {
         Button loadButton = new Button("Загрузить CSV");
         loadButton.setOnAction(e -> onLoadCsv());
 
@@ -86,8 +176,7 @@ public class Main extends Application {
         editButton.setDisable(true);
 
         table.getSelectionModel().selectedItemProperty().addListener(
-                (obs, was, item) ->
-                        editButton.setDisable(!(item instanceof Editable)));
+                (obs, was, item) -> editButton.setDisable(!(item instanceof Editable)));
 
         return new ToolBar(loadButton, saveButton, new Separator(), addButton, editButton);
     }
@@ -102,9 +191,8 @@ public class Main extends Application {
 
         TableColumn<Lesson, String> dateTimeCol = new TableColumn<>("Дата и время");
         dateTimeCol.setCellValueFactory(cd ->
-                new ReadOnlyStringWrapper(cd.getValue().getDateTime().format(
-                        DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm")
-                )));
+                new ReadOnlyStringWrapper(cd.getValue().getDateTime()
+                        .format(DisplayFormat.DATE_TIME)));
 
         TableColumn<Lesson, String> groupCol = new TableColumn<>("Группа");
         groupCol.setCellValueFactory(cd ->
@@ -138,11 +226,9 @@ public class Main extends Application {
             @Override
             protected void updateItem(Lesson item, boolean empty) {
                 super.updateItem(item, empty);
-                if (empty || item == null) {
-                    setStyle("");
-                } else {
-                    setStyle(item instanceof Cancelled ? STYLE_CANCELLED_ROW : "");
-                }
+                setStyle(empty || item == null
+                        ? ""
+                        : (item instanceof Cancelled ? STYLE_CANCELLED_ROW : ""));
             }
         });
 
@@ -172,20 +258,32 @@ public class Main extends Application {
         return bar;
     }
 
+    // ==================== Операции над хранилищем ====================
+
     private void onLoadCsv() {
         File file = csvChooser("Загрузить CSV").showOpenDialog(stage);
         if (file == null) return;
 
         try {
             CsvLoader.LoadResult result = new CsvLoader().load(file.toPath());
-            items.setAll(result.lessons());
+
+            int duplicates = 0;
+            for (Lesson lesson : result.lessons()) {
+                try {
+                    store.add(lesson);
+                } catch (IllegalArgumentException e) {
+                    duplicates++;   // конфликт ключа (дата-время, группа) в самом файле
+                }
+            }
+
             currentFile = file.toPath();
             updateTitle();
-            status("Загружено занятий: " + result.lessons().size());
+            String summary = "Загружено занятий: " + (result.lessons().size() - duplicates);
+            if (duplicates > 0) summary += ", пропущено дубликатов: " + duplicates;
+            status(summary);
 
-            if (result.hasSkipped()) {
-                showSkippedReport(result.skipped());
-            }
+            if (result.hasSkipped()) showSkippedReport(result.skipped());
+            refreshView();
 
         } catch (IOException e) {
             Dialogs.error(stage, "Не удалось прочитать файл", e.getMessage());
@@ -200,10 +298,10 @@ public class Main extends Application {
 
         Path path = ensureCsvExtension(file.toPath());
         try {
-            new CsvSaver().save(path, items);
+            new CsvSaver().save(path, store.snapshot());   // сохраняем из хранилища, не из view
             currentFile = path;
             updateTitle();
-            status("Сохранено записей: " + items.size());
+            status("Сохранено записей: " + store.size());
         } catch (IOException e) {
             Dialogs.error(stage, "Не удалось сохранить файл", e.getMessage());
         }
@@ -211,8 +309,15 @@ public class Main extends Application {
 
     private void onAdd() {
         LessonDialog.showForAdd(stage).ifPresent(lesson -> {
-            items.add(lesson);
-            status("Добавлено: " + lesson.getSubject());
+            try {
+                store.add(lesson);
+                status("Добавлено: " + lesson.getSubject());
+            } catch (IllegalArgumentException e) {
+                Dialogs.error(stage, "Ключ занят",
+                        "У группы " + lesson.getGroup() + " в этом слоте уже есть занятие.");
+            } finally {
+                refreshView();   // даже при ошибке — синхронизация view и подсветки
+            }
         });
     }
 
@@ -227,9 +332,29 @@ public class Main extends Application {
         }
 
         LessonDialog.showForEdit(stage, selected).ifPresent(updated -> {
-            items.set(table.getSelectionModel().getSelectedIndex(), updated);
-            status("Изменено: " + updated.getSubject());
+            LessonKey oldKey = LessonKey.of(selected);
+            if (store.removeByKey(oldKey)) {
+                try {
+                    store.add(updated);   // ключ мог измениться (дата/группа) — запись «переезжает»
+                    status("Изменено: " + updated.getSubject());
+                } catch (IllegalArgumentException e) {
+                    store.add(selected);  // откат: новый слот занят другой записью
+                    Dialogs.error(stage, "Ключ занят",
+                            "Перемещение невозможно: слот уже занят другим занятием.");
+                }
+            } else {
+                Dialogs.error(stage, "Ошибка", "Запись исчезла из хранилища — обновите данные.");
+            }
+            refreshView();
         });
+    }
+
+    // ==================== Синхронизация view и вспомогательные ====================
+
+    /** Единственная точка обновления view из store — вызывается после любой операции. */
+    private void refreshView() {
+        items.setAll(store.snapshot());
+        treePanel.update(store.captureTree(), Set.copyOf(store.lastVisited()));
     }
 
     private FileChooser csvChooser(String title) {

@@ -1,5 +1,6 @@
 package ru.university.schedule.store;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -15,6 +16,16 @@ public class AvlStore<K extends Comparable<K>, T> implements EntityStore<K, T> {
             this.value = value;
             height = 1;
         }
+    }
+
+    private final List<K> lastVisited = new ArrayList<>();
+    public List<K> lastVisited() { return List.copyOf(lastVisited); }
+
+
+    public record NodeInfo<K, T>(K key, T value, int depth) {
+    }
+
+    public record TreeSnapshot<K, T>(List<NodeInfo<K, T>> nodes, List<int[]> edges) {
     }
 
     protected Node root;
@@ -72,23 +83,21 @@ public class AvlStore<K extends Comparable<K>, T> implements EntityStore<K, T> {
 
     protected Node insertNode(Node node, K key, T entity) {
         if (node == null) return new Node(key, entity);
+        lastVisited.add(node.key);
 
         int cmp = key.compareTo(node.key);
 
         if (cmp < 0) {
             node.left = insertNode(node.left, key, entity);
-        }
-        else if (cmp > 0) {
+        } else if (cmp > 0) {
             node.right = insertNode(node.right, key, entity);
-        }
-
-        else throw new IllegalArgumentException(
+        } else throw new IllegalArgumentException(
                 "Занятие с ключом " + key + " уже существует");
 
         return rebalance(node);
     }
 
-    protected  Node findMin(Node node) {
+    protected Node findMin(Node node) {
         return node.left != null ? findMin(node.left) : node;
     }
 
@@ -102,9 +111,10 @@ public class AvlStore<K extends Comparable<K>, T> implements EntityStore<K, T> {
 
     protected Node removeNode(Node node, K key) {
         if (node == null) return null;
+        lastVisited.add(node.key);
 
         int cmp = key.compareTo(node.key);
-        if (cmp < 0)      node.left  = removeNode(node.left, key);
+        if (cmp < 0) node.left = removeNode(node.left, key);
         else if (cmp > 0) node.right = removeNode(node.right, key);
         else {
             Node leftChild = node.left;
@@ -113,7 +123,7 @@ public class AvlStore<K extends Comparable<K>, T> implements EntityStore<K, T> {
 
             Node successor = findMin(rightChild);
             successor.right = removeMin(rightChild);
-            successor.left  = leftChild;
+            successor.left = leftChild;
             return rebalance(successor);
         }
         return rebalance(node);
@@ -121,9 +131,10 @@ public class AvlStore<K extends Comparable<K>, T> implements EntityStore<K, T> {
 
     protected Node findNode(Node node, K key) {
         if (node == null) return null;
+        lastVisited.add(node.key);
 
         int cmp = key.compareTo(node.key);
-        if (cmp < 0)  return findNode(node.left, key);
+        if (cmp < 0) return findNode(node.left, key);
         else if (cmp > 0) return findNode(node.right, key);
         return node;
     }
@@ -136,24 +147,59 @@ public class AvlStore<K extends Comparable<K>, T> implements EntityStore<K, T> {
     }
 
     @Override
+    public List<T> snapshot() {
+        List<T> lst = new ArrayList<>();
+        inorderTraversal(lst, root);
+        return lst;
+    }
+
+    @Override
     public Optional<T> findByKey(K key) {
+        lastVisited.clear();
         Node node = findNode(root, key);
         return node == null ? Optional.empty() : Optional.of(node.value);
     }
 
     @Override
     public void add(K key, T entity) {
+        lastVisited.clear();
         root = insertNode(root, key, entity);
         size++;
     }
 
     @Override
     public boolean removeByKey(K key) {
+        lastVisited.clear();
         if (findByKey(key).isEmpty()) return false;
         root = removeNode(root, key);
         size--;
         return true;
     }
 
-    @Override public int size() { return size;}
+    @Override
+    public int size() {
+        return size;
+    }
+
+
+    public synchronized TreeSnapshot<K, T> captureTree() {
+        List<NodeInfo<K, T>> nodes = new ArrayList<>();
+        List<int[]> edges = new ArrayList<>();
+        capture(root, 0, nodes, edges);
+        return new TreeSnapshot<>(nodes, edges);
+    }
+
+    private int capture(Node node, int depth, List<NodeInfo<K, T>> nodes,
+                        List<int[]> edges) {
+        if (node == null) return -1;
+
+        int leftIndex = capture(node.left, depth + 1, nodes, edges);
+        int myIndex = nodes.size();
+        nodes.add(new NodeInfo<>(node.key, node.value, depth));
+        int rightIndex = capture(node.right, depth + 1, nodes, edges);
+
+        if (leftIndex != -1) edges.add(new int[]{myIndex, leftIndex});
+        if (rightIndex != -1) edges.add(new int[]{myIndex, rightIndex});
+        return myIndex;
+    }
 }

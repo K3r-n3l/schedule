@@ -10,8 +10,7 @@ public class AvlLessonStore
         extends AvlStore<LessonKey, Lesson> implements LessonStore {
 
     public void add(Lesson lesson) {
-        LessonKey key = new LessonKey(lesson.getDateTime(), lesson.getGroup());
-        add(key, lesson);
+        add(LessonKey.of(lesson), lesson);
     }
 
     @Override
