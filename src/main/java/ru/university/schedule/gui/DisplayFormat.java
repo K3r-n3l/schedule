@@ -9,5 +9,8 @@ public final class DisplayFormat {
     public static final DateTimeFormatter TIME_ONLY =
             DateTimeFormatter.ofPattern("HH:mm");
 
+    public static final DateTimeFormatter SHORT_DATE =
+            DateTimeFormatter.ofPattern("dd.MM");
+
     private DisplayFormat() { }
 }

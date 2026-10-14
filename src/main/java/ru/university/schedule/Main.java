@@ -23,11 +23,7 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
-import ru.university.schedule.gui.Dialogs;
-import ru.university.schedule.gui.DisplayFormat;
-import ru.university.schedule.gui.KeyInputDialog;
-import ru.university.schedule.gui.LessonDialog;
-import ru.university.schedule.gui.TreeCanvasPanel;
+import ru.university.schedule.gui.*;
 import ru.university.schedule.csv.CsvFormat;
 import ru.university.schedule.csv.CsvLoader;
 import ru.university.schedule.csv.CsvSaver;
@@ -99,8 +95,11 @@ public class Main extends Application {
         Button removeButton = new Button("Удалить по ключу");
         removeButton.setOnAction(e -> onRemoveByKey());
 
-        ToolBar toolbar = new ToolBar(loadButton, new Separator(),
-                addButton, findButton, nearestButton, removeButton);
+        Button generateButton = new Button("Сгенерировать");
+        generateButton.setOnAction(e -> onGenerate());
+
+        ToolBar toolbar = new ToolBar(loadButton,
+                addButton, findButton, nearestButton, removeButton, generateButton);
 
         VBox root = new VBox(toolbar, treePanel);
         VBox.setVgrow(treePanel, Priority.ALWAYS);
@@ -121,7 +120,7 @@ public class Main extends Application {
         } else {
             Dialogs.info(stage, "Найдено", found.get().toString());
         }
-        refreshView();   // подсветится путь поиска
+        refreshView();
     }
 
     private void onFindNearest() {
@@ -254,6 +253,29 @@ public class Main extends Application {
         return bar;
     }
 
+    private void onGenerate() {
+        GenerateDialog.show(stage).ifPresent(params -> {
+            try {
+                List<Lesson> generated = new ScheduleGenerator().generate(
+                        params.count(), params.startDay(), params.days());
+                int added = 0;
+                for (Lesson lesson : generated) {
+                    try {
+                        store.add(lesson);
+                        added++;
+                    } catch (IllegalArgumentException e) {
+                        // коллизии исключены конструкцией генератора, но защита дешевле инсина
+                        // (например, если в store уже есть занятия в тех же слотах)
+                    }
+                }
+                status("Сгенерировано и добавлено: " + added);
+            } catch (IllegalArgumentException e) {
+                Dialogs.error(stage, "Генерация невозможна", e.getMessage());
+            } finally {
+                refreshView();
+            }
+        });
+    }
 
     private void onLoadCsv() {
         File file = csvChooser("Загрузить CSV").showOpenDialog(stage);
@@ -293,7 +315,7 @@ public class Main extends Application {
 
         Path path = ensureCsvExtension(file.toPath());
         try {
-            new CsvSaver().save(path, store.snapshot());   // сохраняем из хранилища, не из view
+            new CsvSaver().save(path, store.snapshot());
             currentFile = path;
             updateTitle();
             status("Сохранено записей: " + store.size());
@@ -311,7 +333,7 @@ public class Main extends Application {
                 Dialogs.error(stage, "Ключ занят",
                         "У группы " + lesson.getGroup() + " в этом слоте уже есть занятие.");
             } finally {
-                refreshView();   // даже при ошибке — синхронизация view и подсветки
+                refreshView();
             }
         });
     }
@@ -330,10 +352,10 @@ public class Main extends Application {
             LessonKey oldKey = LessonKey.of(selected);
             if (store.removeByKey(oldKey)) {
                 try {
-                    store.add(updated);   // ключ мог измениться (дата/группа) — запись «переезжает»
+                    store.add(updated);
                     status("Изменено: " + updated.getSubject());
                 } catch (IllegalArgumentException e) {
-                    store.add(selected);  // откат: новый слот занят другой записью
+                    store.add(selected);
                     Dialogs.error(stage, "Ключ занят",
                             "Перемещение невозможно: слот уже занят другим занятием.");
                 }
@@ -344,9 +366,6 @@ public class Main extends Application {
         });
     }
 
-    // ==================== Синхронизация view и вспомогательные ====================
-
-    /** Единственная точка обновления view из store — вызывается после любой операции. */
     private void refreshView() {
         items.setAll(store.snapshot());
         treePanel.update(store.captureTree(), Set.copyOf(store.lastVisited()));

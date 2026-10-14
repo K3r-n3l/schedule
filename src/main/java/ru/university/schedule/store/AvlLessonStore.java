@@ -1,14 +1,11 @@
 package ru.university.schedule.store;
-
 import ru.university.schedule.model.Lesson;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
-public class AvlLessonStore extends AvlStore<LessonKey, Lesson>
-        implements EntityStore<LessonKey, Lesson> {
-
+public class AvlLessonStore extends AvlStore<LessonKey, Lesson> {
     public void add(Lesson lesson) {
         add(LessonKey.of(lesson), lesson);
     }
