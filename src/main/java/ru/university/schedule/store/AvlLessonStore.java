@@ -6,14 +6,13 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
-public class AvlLessonStore
-        extends AvlStore<LessonKey, Lesson> implements LessonStore {
+public class AvlLessonStore extends AvlStore<LessonKey, Lesson>
+        implements EntityStore<LessonKey, Lesson> {
 
     public void add(Lesson lesson) {
         add(LessonKey.of(lesson), lesson);
     }
 
-    @Override
     public Optional<Lesson> findNearest(LocalDateTime target, String group) {
         if (group == null || group.isBlank()) {
             throw new IllegalArgumentException("Группа не указана");

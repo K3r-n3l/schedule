@@ -1,7 +1,5 @@
 package ru.university.schedule.store;
 
-import ru.university.schedule.model.Lesson;
-
 import java.util.List;
 import java.util.Optional;
 

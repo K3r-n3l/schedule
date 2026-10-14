@@ -66,7 +66,6 @@ public class Main extends Application {
     private Path currentFile;
     private final TreeCanvasPanel treePanel = new TreeCanvasPanel();
 
-
     @Override
     public void start(Stage stage) {
         this.stage = stage;
@@ -83,8 +82,6 @@ public class Main extends Application {
 
         refreshView();
     }
-
-    // ==================== Вкладка «Визуализация AVL» ====================
 
     private VBox buildVisualRoot() {
         Button loadButton = new Button("Загрузить CSV");
@@ -150,10 +147,9 @@ public class Main extends Application {
         LessonKey key = new LessonKey(input.get().dateTime(), input.get().group());
         boolean removed = store.removeByKey(key);
         status(removed ? "Удалено: " + key : "Ключ " + key + " отсутствовал — ничего не удалено");
-        refreshView();   // подсветится путь даже неудавшегося поиска
+        refreshView();
     }
 
-    // ==================== Вкладка «Таблица расписания» ====================
 
     private VBox buildTableRoot() {
         VBox root = new VBox(buildTableToolbar(), buildTable(), buildStatusBar());
@@ -258,7 +254,6 @@ public class Main extends Application {
         return bar;
     }
 
-    // ==================== Операции над хранилищем ====================
 
     private void onLoadCsv() {
         File file = csvChooser("Загрузить CSV").showOpenDialog(stage);
@@ -272,7 +267,7 @@ public class Main extends Application {
                 try {
                     store.add(lesson);
                 } catch (IllegalArgumentException e) {
-                    duplicates++;   // конфликт ключа (дата-время, группа) в самом файле
+                    duplicates++;
                 }
             }
 

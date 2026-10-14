@@ -18,23 +18,18 @@ public class AvlStore<K extends Comparable<K>, T> implements EntityStore<K, T> {
         }
     }
 
+    protected Node root;
+    protected int size;
+
     private final List<K> lastVisited = new ArrayList<>();
     public List<K> lastVisited() { return List.copyOf(lastVisited); }
 
-
-    public record NodeInfo<K, T>(K key, T value, int depth) {
-    }
-
-    public record TreeSnapshot<K, T>(List<NodeInfo<K, T>> nodes, List<int[]> edges) {
-    }
-
-    protected Node root;
-    protected int size;
+    public record NodeInfo<K, T>(K key, T value, int depth) { }
+    public record TreeSnapshot<K, T>(List<NodeInfo<K, T>> nodes, List<int[]> edges) { }
 
     protected int height(Node node) {
         return node == null ? 0 : node.height;
     }
-
     protected int balanceFactor(Node node) {
         return height(node.right) - height(node.left);
     }
@@ -177,20 +172,16 @@ public class AvlStore<K extends Comparable<K>, T> implements EntityStore<K, T> {
     }
 
     @Override
-    public int size() {
-        return size;
-    }
-
+    public int size() { return size; }
 
     public synchronized TreeSnapshot<K, T> captureTree() {
         List<NodeInfo<K, T>> nodes = new ArrayList<>();
         List<int[]> edges = new ArrayList<>();
         capture(root, 0, nodes, edges);
-        return new TreeSnapshot<>(nodes, edges);
+        return new AvlStore.TreeSnapshot<>(nodes, edges);
     }
 
-    private int capture(Node node, int depth, List<NodeInfo<K, T>> nodes,
-                        List<int[]> edges) {
+    private int capture(Node node, int depth, List<AvlStore.NodeInfo<K, T>> nodes, List<int[]> edges) {
         if (node == null) return -1;
 
         int leftIndex = capture(node.left, depth + 1, nodes, edges);

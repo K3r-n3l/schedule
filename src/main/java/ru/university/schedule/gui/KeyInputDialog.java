@@ -16,14 +16,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.Optional;
 
-/**
- * Компактный ввод «дата-время + группа» — общий для операций
- * «Найти по ключу», «Удалить по ключу», «Ближайшее занятие группы».
- * Возвращает record KeyInput или empty при отмене.
- */
 public final class KeyInputDialog extends Dialog<KeyInputDialog.KeyInput> {
-
-    /** Результат ввода: момент + группа. */
     public record KeyInput(LocalDateTime dateTime, String group) { }
 
     private static final DateTimeFormatter UI_TIME = DateTimeFormatter.ofPattern("H:mm");
@@ -49,9 +42,15 @@ public final class KeyInputDialog extends Dialog<KeyInputDialog.KeyInput> {
         grid.setHgap(GRID_GAP);
         grid.setVgap(GRID_GAP);
         grid.setPadding(FORM_PADDING);
-        grid.add(new Label("Дата:"), 0, 0);        grid.add(datePicker, 1, 0);
-        grid.add(new Label("Время (ч:мм):"), 0, 1); grid.add(timeField, 1, 1);
-        grid.add(new Label("Группа:"), 0, 2);      grid.add(groupField, 1, 2);
+
+        grid.add(new Label("Дата:"), 0, 0);
+        grid.add(datePicker, 1, 0);
+
+        grid.add(new Label("Время (ч:мм):"), 0, 1);
+        grid.add(timeField, 1, 1);
+
+        grid.add(new Label("Группа:"), 0, 2);
+        grid.add(groupField, 1, 2);
 
         getDialogPane().setContent(new javafx.scene.layout.VBox(errorLabel, grid));
         getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
@@ -80,7 +79,7 @@ public final class KeyInputDialog extends Dialog<KeyInputDialog.KeyInput> {
         try {
             time = LocalTime.parse(timeField.getText().trim(), UI_TIME);
         } catch (DateTimeParseException e) {
-            errors.add("Время: введите часы:минуты, например 10:45");
+            errors.add("Введите время");
         }
 
         String group = groupField.getText().trim();
