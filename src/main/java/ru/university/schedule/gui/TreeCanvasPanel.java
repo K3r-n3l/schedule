@@ -9,7 +9,6 @@ import javafx.scene.text.TextAlignment;
 import ru.university.schedule.model.Lesson;
 import ru.university.schedule.store.AvlStore.NodeInfo;
 import ru.university.schedule.store.AvlStore.TreeSnapshot;
-
 import java.util.List;
 import java.util.Set;
 

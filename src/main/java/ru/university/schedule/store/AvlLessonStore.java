@@ -1,6 +1,6 @@
 package ru.university.schedule.store;
-import ru.university.schedule.model.Lesson;
 
+import ru.university.schedule.model.Lesson;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Optional;

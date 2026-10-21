@@ -22,7 +22,7 @@ public class AvlStore<K extends Comparable<K>, T> implements EntityStore<K, T> {
     protected int size;
 
     private final List<K> lastVisited = new ArrayList<>();
-    public List<K> lastVisited() { return List.copyOf(lastVisited); }
+    public synchronized List<K> lastVisited() { return List.copyOf(lastVisited); }
 
     public record NodeInfo<K, T>(K key, T value, int depth) { }
     public record TreeSnapshot<K, T>(List<NodeInfo<K, T>> nodes, List<int[]> edges) { }
@@ -142,28 +142,28 @@ public class AvlStore<K extends Comparable<K>, T> implements EntityStore<K, T> {
     }
 
     @Override
-    public List<T> snapshot() {
+    public synchronized List<T> snapshot() {
         List<T> lst = new ArrayList<>();
         inorderTraversal(lst, root);
         return lst;
     }
 
     @Override
-    public Optional<T> findByKey(K key) {
+    public synchronized Optional<T> findByKey(K key) {
         lastVisited.clear();
         Node node = findNode(root, key);
         return node == null ? Optional.empty() : Optional.of(node.value);
     }
 
     @Override
-    public void add(K key, T entity) {
+    public synchronized void add(K key, T entity) {
         lastVisited.clear();
         root = insertNode(root, key, entity);
         size++;
     }
 
     @Override
-    public boolean removeByKey(K key) {
+    public synchronized boolean removeByKey(K key) {
         lastVisited.clear();
         if (findByKey(key).isEmpty()) return false;
         root = removeNode(root, key);
@@ -172,7 +172,7 @@ public class AvlStore<K extends Comparable<K>, T> implements EntityStore<K, T> {
     }
 
     @Override
-    public int size() { return size; }
+    public synchronized int size() { return size; }
 
     public synchronized TreeSnapshot<K, T> captureTree() {
         List<NodeInfo<K, T>> nodes = new ArrayList<>();
