@@ -17,18 +17,21 @@ public class BinarySerializer implements Serializer {
     }
 
     @Override
-    public void save(Lesson lesson, Path file) {
-        try (ObjectOutputStream oss = new ObjectOutputStream(Files.newOutputStream(file))) {
+    public void save(Lesson lesson, Path path) {
+        try (ObjectOutputStream oss = new ObjectOutputStream(Files.newOutputStream(path))) {
             oss.writeObject(lesson);
-        } catch (IOException e) {}
+        } catch (IOException e) {
+            System.out.println(e.getMessage());
+        }
     }
 
     @Override
-    public Lesson load(Path file) {
-        try (ObjectInputStream ois = new ObjectInputStream(Files.newInputStream(file))) {
-            Lesson loaded = (Lesson)ois.readObject();
+    public Lesson load(Path path) {
+        try (ObjectInputStream ois = new ObjectInputStream(Files.newInputStream(path))) {
+            Lesson loaded = (Lesson) ois.readObject();
             return loaded;
         } catch (IOException | ClassNotFoundException e) {
+            System.out.println(e.getMessage());
             return null;
         }
     }

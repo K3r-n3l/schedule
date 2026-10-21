@@ -5,6 +5,7 @@ import ru.university.schedule.model.Lecture;
 import ru.university.schedule.model.Lesson;
 import ru.university.schedule.model.Practice;
 import ru.university.schedule.serializer.BinarySerializer;
+import ru.university.schedule.serializer.JsonSerializer;
 import ru.university.schedule.serializer.Serializer;
 
 import java.nio.file.Path;
@@ -47,10 +48,21 @@ public class SerializerTest {
         );
 
 
-        Serializer ser = new BinarySerializer();
-        ser.save(lecture, Path.of("ser"));
+//        Serializer serbin = new BinarySerializer();
+//        serbin.save(lecture, Path.of("ser"));
+//
+//        Lesson loaded = serbin.load(Path.of("ser"));
+//        if (loaded != null) {
+//            System.out.println("Loaded:" + loaded);
+//            System.out.println("Origin:" + lecture);
+//            System.out.println("Equals? " + lecture.equals(loaded));
+//        }
 
-        Lesson loaded = ser.load(Path.of("ser"));
+        Serializer serjson = new JsonSerializer();
+        serjson.save(lesson, Path.of("ser.json"));
+
+        Lesson loaded = serjson.load(Path.of("ser.json"));
+
         if (loaded != null) {
             System.out.println("Loaded:" + loaded);
             System.out.println("Origin:" + lecture);

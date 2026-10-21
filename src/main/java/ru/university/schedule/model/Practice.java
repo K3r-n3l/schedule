@@ -6,6 +6,8 @@ import java.util.List;
 public class Practice extends Lesson implements Editable {
     protected int subgroup;
 
+    public Practice() {}
+
     public Practice(LocalDateTime dateTime, String group, String subject,
                     String room, String teacher, int subgroup) {
         super(dateTime, group, subject, room, teacher);

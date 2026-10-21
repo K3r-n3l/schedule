@@ -5,6 +5,6 @@ import java.nio.file.Path;
 
 public interface Serializer {
     String format();
-    void save(Lesson lesson, Path file);
-    Lesson load(Path file);
+    void save(Lesson lesson, Path path);
+    Lesson load(Path path);
 }

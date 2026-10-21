@@ -3,6 +3,8 @@ package ru.university.schedule.model;
 import java.time.LocalDateTime;
 
 public class Cancelled extends Lesson {
+    public Cancelled() {}
+
     public Cancelled(LocalDateTime dateTime, String group, String subject,
                      String room, String teacher) {
         super(dateTime, group, subject, room, teacher);

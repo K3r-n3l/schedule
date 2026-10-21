@@ -1,9 +1,22 @@
 package ru.university.schedule.model;
 
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+
 import java.io.Serial;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+
+@JsonTypeInfo(
+        use = JsonTypeInfo.Id.NAME,
+        property = "type"
+)
+@JsonSubTypes({
+        @JsonSubTypes.Type(value = Lecture.class,   name = "lecture"),
+        @JsonSubTypes.Type(value = Practice.class,  name = "practice"),
+        @JsonSubTypes.Type(value = Cancelled.class, name = "cancelled")
+})
 
 public class Lesson implements java.io.Serializable {
     @Serial private static final long serialVersionUID = 1L;
@@ -13,6 +26,8 @@ public class Lesson implements java.io.Serializable {
     private String subject;
     private String room;
     private String teacher;
+
+    public Lesson() {}
 
     public Lesson(LocalDateTime dateTime, String group, String subject,
                   String room, String teacher) {
@@ -42,6 +57,8 @@ public class Lesson implements java.io.Serializable {
         return kind().displayName + " Время и дата: %s; Группа: %s; Предмет: %s; Аудитория: %s; Преподаватель: %s".
                 formatted(dateTime, group, subject, room, teacher);
     }
+
+
 
     public LocalDateTime getDateTime()  { return dateTime; }
     public String getGroup()            { return group; }

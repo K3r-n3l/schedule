@@ -6,6 +6,8 @@ import java.util.List;
 public class Lecture extends Lesson implements Editable {
     protected String stream;
 
+    public Lecture() {}
+
     public Lecture(LocalDateTime dateTime, String group, String subject,
                    String room, String teacher, String stream) {
         super(dateTime, group, subject, room, teacher);
