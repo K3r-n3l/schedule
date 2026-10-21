@@ -4,9 +4,8 @@ import ru.university.schedule.model.Cancelled;
 import ru.university.schedule.model.Lecture;
 import ru.university.schedule.model.Lesson;
 import ru.university.schedule.model.Practice;
-import ru.university.schedule.serializer.BinarySerializer;
-import ru.university.schedule.serializer.JsonSerializer;
 import ru.university.schedule.serializer.Serializer;
+import ru.university.schedule.serializer.XmlSerializer;
 
 import java.nio.file.Path;
 import java.time.LocalDateTime;
@@ -58,10 +57,10 @@ public class SerializerTest {
 //            System.out.println("Equals? " + lecture.equals(loaded));
 //        }
 
-        Serializer serjson = new JsonSerializer();
-        serjson.save(lesson, Path.of("ser.json"));
+        Serializer serxml = new XmlSerializer();
+        serxml.save(lecture, Path.of("ser.xml"));
 
-        Lesson loaded = serjson.load(Path.of("ser.json"));
+        Lesson loaded = serxml.load(Path.of("ser.xml"));
 
         if (loaded != null) {
             System.out.println("Loaded:" + loaded);
