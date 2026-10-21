@@ -8,5 +8,6 @@ public interface EntityStore<K, T> {
     boolean removeByKey(K key);
     Optional<T> findByKey(K key);
     List<T> snapshot();
+    void clear();
     int size();
 }

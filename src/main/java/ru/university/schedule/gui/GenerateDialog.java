@@ -11,10 +11,7 @@ import javafx.stage.Window;
 import java.time.LocalDate;
 import java.util.Optional;
 
-/** Диалог параметров генерации: количество занятий и период в днях. */
 public final class GenerateDialog extends Dialog<GenerateDialog.Params> {
-
-    /** Результат: count занятий за days дней от понедельника текущей недели. */
     public record Params(int count, int days, LocalDate startDay) { }
 
     private static final int MAX_COUNT = 100_000;
@@ -60,13 +57,10 @@ public final class GenerateDialog extends Dialog<GenerateDialog.Params> {
     private Params buildAndValidate() {
         int count = parseInt(countField.getText(), 1, MAX_COUNT, "Количество");
         int days = parseInt(daysField.getText(), 1, MAX_DAYS, "Период");
-        if (count == -1 || days == -1) return null;      // ошибки уже показаны
-
-        // Старт — сегодня; генерация «вперёд» выглядит естественно
+        if (count == -1 || days == -1) return null;
         return new Params(count, days, LocalDate.now());
     }
 
-    /** @return разобранное число или -1 (ошибка показана прямо в диалоге). */
     private int parseInt(String raw, int min, int max, String fieldName) {
         try {
             int value = Integer.parseInt(raw.trim());

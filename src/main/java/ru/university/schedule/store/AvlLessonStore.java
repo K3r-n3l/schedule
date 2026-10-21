@@ -1,11 +1,14 @@
 package ru.university.schedule.store;
 
 import ru.university.schedule.model.Lesson;
+import ru.university.schedule.serializer.Serializer;
+
+import java.io.Serializable;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
-public class AvlLessonStore extends AvlStore<LessonKey, Lesson> {
+public class AvlLessonStore extends AvlStore<LessonKey, Lesson> implements Serializable {
     public void add(Lesson lesson) {
         add(LessonKey.of(lesson), lesson);
     }

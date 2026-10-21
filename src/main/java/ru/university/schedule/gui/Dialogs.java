@@ -4,7 +4,6 @@ import javafx.scene.control.Alert;
 import javafx.stage.Window;
 
 public final class Dialogs {
-
     private Dialogs() { }
 
     public static void error(Window owner, String header, String content) {

@@ -16,7 +16,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.Optional;
 
-public final class KeyInputDialog extends Dialog<KeyInputDialog.KeyInput> {
+public final class FindDialog extends Dialog<FindDialog.KeyInput> {
     public record KeyInput(LocalDateTime dateTime, String group) { }
 
     private static final DateTimeFormatter UI_TIME = DateTimeFormatter.ofPattern("H:mm");
@@ -30,7 +30,7 @@ public final class KeyInputDialog extends Dialog<KeyInputDialog.KeyInput> {
 
     private KeyInput draftResult;
 
-    private KeyInputDialog(Window owner, String title) {
+    private FindDialog(Window owner, String title) {
         setTitle(title);
         initOwner(owner);
 
@@ -66,7 +66,7 @@ public final class KeyInputDialog extends Dialog<KeyInputDialog.KeyInput> {
     }
 
     public static Optional<KeyInput> show(Window owner, String title) {
-        return new KeyInputDialog(owner, title).showAndWait();
+        return new FindDialog(owner, title).showAndWait();
     }
 
     private KeyInput buildAndValidate() {

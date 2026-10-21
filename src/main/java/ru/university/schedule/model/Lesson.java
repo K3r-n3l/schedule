@@ -1,10 +1,13 @@
 package ru.university.schedule.model;
 
+import java.io.Serial;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Lesson {
+public class Lesson implements java.io.Serializable {
+    @Serial private static final long serialVersionUID = 1L;
+
     private LocalDateTime dateTime;
     private String group;
     private String subject;

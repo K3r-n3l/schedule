@@ -172,6 +172,13 @@ public class AvlStore<K extends Comparable<K>, T> implements EntityStore<K, T> {
     }
 
     @Override
+    public synchronized void clear() {
+        size = 0;
+        root = null;
+        lastVisited.clear();
+    }
+
+    @Override
     public synchronized int size() { return size; }
 
     public synchronized TreeSnapshot<K, T> captureTree() {

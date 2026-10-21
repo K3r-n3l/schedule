@@ -1,4 +1,4 @@
-package ru.university.schedule.gui;
+package ru.university.schedule;
 
 import ru.university.schedule.model.Lecture;
 import ru.university.schedule.model.Lesson;
@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Random;
 
 
-public final class ScheduleGenerator {
+public final class Generator {
     private static final List<String> GROUPS = List.of(
             "ИВТ-1", "ИВТ-2", "ИВТ-21", "ИВТ-22", "ПИ-1", "ПИ-2");
 
@@ -41,7 +41,6 @@ public final class ScheduleGenerator {
         if (count < 1) throw new IllegalArgumentException("count < 1");
         if (days < 1)  throw new IllegalArgumentException("days < 1");
 
-        // Столько непересекающихся слотов доступно в периоде
         int slotsPerDay = MINUTES_PER_DAY / (MAX_NOISE_MINUTES * 2 + 1); // шаг ≥ 11 минут
         long totalSlots = (long) slotsPerDay * days;
         if (count > totalSlots) {
@@ -49,7 +48,6 @@ public final class ScheduleGenerator {
                     "Слишком много занятий: максимум " + totalSlots + " за " + days + " дн.");
         }
 
-        // Раскладываем занятия по слотам равномерно по дням и времени
         List<Lesson> result = new ArrayList<>(count);
         long slotStep = totalSlots / count;          // средний шаг между занятиями
         long slot = random.nextInt((int) Math.max(1, slotStep));   // случайный старт
@@ -66,8 +64,6 @@ public final class ScheduleGenerator {
             String teacher = TEACHERS.get(random.nextInt(TEACHERS.size()));
             String room = ROOMS.get(random.nextInt(ROOMS.size()));
 
-            // Тип: ~50/50 лекция/практика (базовые Lesson и Cancelled генератором не создаёт:
-            // первый — не редактируемый тип, второй — read-only архив, синтетика их не порождает)
             if (random.nextBoolean()) {
                 result.add(new Lecture(dateTime, group, subject, room, teacher,
                         "Поток " + (1 + random.nextInt(3))));
@@ -76,7 +72,7 @@ public final class ScheduleGenerator {
                         1 + random.nextInt(2)));
             }
 
-            slot += slotStep;                        // шаг ≥ 1, слоты не пересекаются
+            slot += slotStep;
         }
         return result;
     }
