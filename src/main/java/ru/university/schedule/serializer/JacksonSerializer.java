@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import ru.university.schedule.model.Lesson;
+import ru.university.schedule.store.AvlLessonStore;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -36,6 +37,12 @@ public abstract class JacksonSerializer implements Serializer {
         }
     }
 
+    public void saveLessons(AvlLessonStore lessons, Path path) {
+        for (Lesson lesson : lessons.snapshot()) {
+            save(lesson, path);
+        }
+    }
+
     @Override
     public Lesson load(Path path) {
         try {
@@ -45,5 +52,10 @@ public abstract class JacksonSerializer implements Serializer {
             System.out.println(e.getMessage());
             return null;
         }
+    }
+
+    public AvlLessonStore loadLessons(Path path) {
+        AvlLessonStore store = new AvlLessonStore();
+        return store;
     }
 }

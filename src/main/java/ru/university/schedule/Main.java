@@ -5,11 +5,10 @@ import javafx.scene.Scene;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.stage.Stage;
-import ru.university.schedule.csv.CsvLoader;
-import ru.university.schedule.csv.CsvSaver;
 import ru.university.schedule.gui.*;
 import ru.university.schedule.model.Editable;
 import ru.university.schedule.model.Lesson;
+import ru.university.schedule.serializer.Serializer;
 import ru.university.schedule.store.AvlLessonStore;
 import ru.university.schedule.store.LessonKey;
 
@@ -88,7 +87,7 @@ public class Main extends Application
                     store.add(updated);
                     status("Изменено: " + updated.getSubject());
                 } catch (IllegalArgumentException e) {
-                    store.add(selected);   // откат: возвращаем запись как была
+                    store.add(selected);
                     Dialogs.error(stage, "Ключ занят",
                             "Перемещение невозможно: слот уже занят другим занятием.");
                 }
@@ -100,25 +99,13 @@ public class Main extends Application
     }
 
     @Override
-    public void loadCsv() {
-        CsvFiles.chooseOpen(stage, "Загрузить CSV").ifPresent(this::importCsv);
+    public void load() {
     }
 
     @Override
-    public void saveCsv() {
-        CsvFiles.chooseSave(stage, "Сохранить CSV").ifPresent(chosen -> {
-            Path path = CsvFiles.ensureExtension(chosen);
-            try {
-                new CsvSaver().save(path, store.snapshot());
-                currentFile = path;
-                updateTitle();
-                status("Сохранено записей: " + store.size());
-            } catch (IOException e) {
-                Dialogs.error(stage, "Не удалось сохранить файл", e.getMessage());
-            }
-        });
-    }
+    public void save() {
 
+    }
 
     @Override
     public void findByKey() {
@@ -168,8 +155,8 @@ public class Main extends Application
 
                 int added = 0;
                 for (Lesson lesson : generated) {
-                        store.add(lesson);
-                        added++;
+                    store.add(lesson);
+                    added++;
                 }
                 currentFile = null;
 
@@ -180,53 +167,6 @@ public class Main extends Application
                 refreshView();
             }
         });
-    }
-
-
-    private void importCsv(Path path) {
-        try {
-            CsvLoader.LoadResult result = new CsvLoader().load(path);
-            store.clear();
-
-            int duplicates = 0;
-            for (Lesson lesson : result.lessons()) {
-                try {
-                    store.add(lesson);
-                } catch (IllegalArgumentException e) {
-                    duplicates++;
-                }
-            }
-
-            currentFile = path;
-            updateTitle();
-            String summary = "Загружено занятий: " + (result.lessons().size() - duplicates);
-            if (duplicates > 0) {
-                summary += ", пропущено дубликатов: " + duplicates;
-            }
-            status(summary);
-
-            if (result.hasSkipped()) {
-                showSkippedReport(result.skipped());
-            }
-            refreshView();
-        } catch (IOException e) {
-            Dialogs.error(stage, "Не удалось прочитать файл", e.getMessage());
-        }
-    }
-
-    private void showSkippedReport(List<CsvLoader.SkippedLine> skipped) {
-        StringBuilder text = new StringBuilder(
-                "Загружено с пропусками. Пропущено строк: " + skipped.size() + "\n\n");
-        int shown = 0;
-        for (CsvLoader.SkippedLine row : skipped) {
-            if (shown++ == MAX_SKIPPED_IN_DIALOG) {
-                text.append("… и ещё ").append(skipped.size() - shown + 1).append("\n");
-                break;
-            }
-            text.append("строка ").append(row.lineNumber()).append(": ")
-                    .append(row.reason()).append("\n");
-        }
-        Dialogs.info(stage, "Файл загружен частично", text.toString());
     }
 
     private void updateTitle() {

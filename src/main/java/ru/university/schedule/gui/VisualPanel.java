@@ -10,7 +10,7 @@ import java.util.Set;
 
 public final class VisualPanel extends VBox {
     public interface Actions {
-        void loadCsv();
+        void load();
         void add();
         void findByKey();
         void findNearest();
@@ -22,7 +22,7 @@ public final class VisualPanel extends VBox {
 
     public VisualPanel(Actions actions) {
         ToolBar toolbar = new ToolBar(
-                button("Загрузить CSV", actions::loadCsv),
+                button("Загрузить CSV", actions::load),
                 button("Добавить", actions::add),
                 button("Найти по ключу", actions::findByKey),
                 button("Ближайшее занятие группы", actions::findNearest),

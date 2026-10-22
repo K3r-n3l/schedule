@@ -30,8 +30,8 @@ public final class TablePanel extends VBox {
     public interface Actions {
         void add();
         void edit(Lesson selected);
-        void loadCsv();
-        void saveCsv();
+        void load();
+        void save();
     }
 
     private static final String STYLE_CANCELLED_ROW = "-fx-background-color: #ffd9d9;";
@@ -58,15 +58,15 @@ public final class TablePanel extends VBox {
                 (obs, was, item) -> editButton.setDisable(!(item instanceof Editable)));
 
         return new ToolBar(
-                button("Загрузить CSV", actions::loadCsv),
-                button("Сохранить CSV", actions::saveCsv),
+                button("Загрузить", actions::load),
+                button("Сохранить", actions::save),
                 new Separator(),
                 button("Добавить", actions::add),
                 editButton);
     }
 
     private TableView<Lesson> buildTable() {
-        table.setPlaceholder(new Label("Нет данных — загрузите CSV или добавьте занятия"));
+        table.setPlaceholder(new Label("Нет данных — загрузите или добавьте занятия"));
         table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);
         table.getColumns().addAll(
                 column("Тип", lesson -> lesson.kind().displayName),
