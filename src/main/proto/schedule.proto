@@ -1,0 +1,32 @@
+syntax = "proto3";
+
+package schedule;
+
+option java_package = "ru.university.schedule.protobuf";
+option java_outer_classname = "ScheduleProtobuf";
+
+enum LessonType {
+  LESSON_TYPE_UNKNOWN = 0;
+  LESSON = 1;
+  LECTURE = 2;
+  PRACTICE = 3;
+  CANCELLED = 4;
+}
+
+message Lesson {
+  uint32 type = 1;
+  uint64 seconds = 2;
+  uint32 nanos = 3;
+  string group = 4;
+  string subject = 5;
+  string room = 6;
+  string teacher = 7;
+  string stream = 8;
+  uint32 subgroup = 9;
+  string reason = 10;
+}
+
+message ScheduleData {
+  uint32 version = 1;
+  repeated Lesson lessons = 2;
+}

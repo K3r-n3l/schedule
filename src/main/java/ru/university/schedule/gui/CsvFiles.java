@@ -8,7 +8,6 @@ import java.io.File;
 import java.nio.file.Path;
 import java.util.Optional;
 
-/** Диалоги выбора CSV-файла и работа с расширением. */
 public final class CsvFiles {
 
     private CsvFiles() { }
@@ -25,7 +24,6 @@ public final class CsvFiles {
         return file == null ? Optional.empty() : Optional.of(file.toPath());
     }
 
-    /** Добавляет .csv, если пользователь ввёл имя без расширения. */
     public static Path ensureExtension(Path path) {
         String name = path.getFileName().toString();
         return name.toLowerCase().endsWith(CsvFormat.EXTENSION)

@@ -1,6 +1,7 @@
 plugins {
     application
     id("org.openjfx.javafxplugin") version "0.1.0"
+    id("com.google.protobuf") version "0.10.0"
 }
 
 group = "ru.university"
@@ -21,6 +22,12 @@ javafx {
     modules = listOf("javafx.controls")
 }
 
+protobuf {
+    protoc {
+        artifact = "com.google.protobuf:protoc:4.31.1"
+    }
+}
+
 application {
     mainClass.set("ru.university.schedule.Launcher")
 }
@@ -32,6 +39,7 @@ dependencies {
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.17.2")
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.17.2")
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.17.2")
+    implementation("com.google.protobuf:protobuf-java:4.31.1")
 }
 
 tasks.test {
