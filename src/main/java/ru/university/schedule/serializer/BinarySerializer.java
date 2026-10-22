@@ -9,7 +9,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 public class BinarySerializer implements Serializer {
-    private static final String format = "binary";
+    private static final String format = "bin";
 
     @Override
     public String format() {

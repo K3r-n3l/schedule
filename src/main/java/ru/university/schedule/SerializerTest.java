@@ -6,6 +6,7 @@ import ru.university.schedule.model.Lesson;
 import ru.university.schedule.model.Practice;
 import ru.university.schedule.serializer.Serializer;
 import ru.university.schedule.serializer.XmlSerializer;
+import ru.university.schedule.serializer.YamlSerializer;
 
 import java.nio.file.Path;
 import java.time.LocalDateTime;
@@ -57,10 +58,10 @@ public class SerializerTest {
 //            System.out.println("Equals? " + lecture.equals(loaded));
 //        }
 
-        Serializer serxml = new XmlSerializer();
-        serxml.save(lecture, Path.of("ser.xml"));
+        Serializer serxml = new YamlSerializer();
+        serxml.save(lecture, Path.of("ser.yaml"));
 
-        Lesson loaded = serxml.load(Path.of("ser.xml"));
+        Lesson loaded = serxml.load(Path.of("ser.yaml"));
 
         if (loaded != null) {
             System.out.println("Loaded:" + loaded);
