@@ -5,8 +5,11 @@ import ru.university.schedule.model.Lesson;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
 
 public class BinarySerializer implements Serializer {
     private static final String format = "bin";
@@ -17,22 +20,22 @@ public class BinarySerializer implements Serializer {
     }
 
     @Override
-    public void save(Lesson lesson, Path path) {
-        try (ObjectOutputStream oss = new ObjectOutputStream(Files.newOutputStream(path))) {
-            oss.writeObject(lesson);
+    public void save(List<Lesson> lessons, Path path) {
+        try (ObjectOutputStream oos = new ObjectOutputStream(Files.newOutputStream(path))) {
+            oos.writeObject(new ArrayList<>(lessons));
         } catch (IOException e) {
-            System.out.println(e.getMessage());
+            throw new UncheckedIOException("Не удалось записать файл: " + path, e);
         }
     }
 
     @Override
-    public Lesson load(Path path) {
+    public List<Lesson> load(Path path) {
         try (ObjectInputStream ois = new ObjectInputStream(Files.newInputStream(path))) {
-            Lesson loaded = (Lesson) ois.readObject();
-            return loaded;
-        } catch (IOException | ClassNotFoundException e) {
-            System.out.println(e.getMessage());
-            return null;
+            return (List<Lesson>) ois.readObject();
+        } catch (IOException e) {
+            throw new UncheckedIOException("Не удалось прочитать файл: " + path, e);
+        } catch (ClassNotFoundException | ClassCastException e) {
+            throw new IllegalArgumentException("Файл повреждён: " + e.getMessage(), e);
         }
     }
 }

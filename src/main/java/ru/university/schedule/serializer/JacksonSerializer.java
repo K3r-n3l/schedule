@@ -4,12 +4,24 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import ru.university.schedule.model.Lesson;
-import ru.university.schedule.store.AvlLessonStore;
 
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
 
 public abstract class JacksonSerializer implements Serializer {
+    public static class ScheduleFile {
+        public List<Lesson> lessons = new ArrayList<>();
+
+        public ScheduleFile() { }
+
+        public ScheduleFile(List<Lesson> lessons) {
+            this.lessons = lessons;
+        }
+    }
+
     protected final String format;
     protected final ObjectMapper mapper;
 
@@ -28,34 +40,21 @@ public abstract class JacksonSerializer implements Serializer {
     }
 
     @Override
-    public void save(Lesson lesson, Path path) {
+    public void save(List<Lesson> lessons, Path path) {
         try {
-            mapper.writeValue(path.toFile(), lesson);
-        }
-        catch (IOException e) {
-            System.out.println(e.getMessage());
-        }
-    }
-
-    public void saveLessons(AvlLessonStore lessons, Path path) {
-        for (Lesson lesson : lessons.snapshot()) {
-            save(lesson, path);
+            mapper.writeValue(path.toFile(), new ScheduleFile(new ArrayList<>(lessons)));
+        } catch (IOException e) {
+            throw new UncheckedIOException("Не удалось записать файл: " + path, e);
         }
     }
 
     @Override
-    public Lesson load(Path path) {
+    public List<Lesson> load(Path path) {
         try {
-            Lesson loaded = mapper.readValue(path.toFile(), Lesson.class);
-            return loaded;
+            ScheduleFile file = mapper.readValue(path.toFile(), ScheduleFile.class);
+            return file.lessons == null ? List.of() : file.lessons;
         } catch (IOException e) {
-            System.out.println(e.getMessage());
-            return null;
+            throw new IllegalArgumentException("Не удалось прочитать файл: " + e.getMessage(), e);
         }
-    }
-
-    public AvlLessonStore loadLessons(Path path) {
-        AvlLessonStore store = new AvlLessonStore();
-        return store;
     }
 }

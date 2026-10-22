@@ -14,6 +14,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.util.ArrayList;
+import java.util.List;
 
 public final class ProtobufSerializer implements Serializer {
     public static final String format = ".binpb";
@@ -22,12 +24,13 @@ public final class ProtobufSerializer implements Serializer {
     @Override public String format() { return format; }
 
     @Override
-    public void save(Lesson lesson, Path path) {
-        byte[] bytes = ScheduleProtobuf.ScheduleData.newBuilder()
-                .setVersion(SUPPORTED_VERSION)
-                .addLessons(toProto(lesson))
-                .build()
-                .toByteArray();
+    public void save(List<Lesson> lessons, Path path) {
+        ScheduleProtobuf.ScheduleData.Builder builder = ScheduleProtobuf.ScheduleData.newBuilder()
+                .setVersion(SUPPORTED_VERSION);
+        for (Lesson lesson : lessons) {
+            builder.addLessons(toProto(lesson));
+        }
+        byte[] bytes = builder.build().toByteArray();
         try {
             Files.write(path, bytes);
         } catch (IOException e) {
@@ -36,7 +39,7 @@ public final class ProtobufSerializer implements Serializer {
     }
 
     @Override
-    public Lesson load(Path path) {
+    public List<Lesson> load(Path path) {
         byte[] bytes;
         try {
             bytes = Files.readAllBytes(path);
@@ -54,10 +57,11 @@ public final class ProtobufSerializer implements Serializer {
             throw new IllegalArgumentException("Версия формата " + proto.getVersion()
                     + " не поддерживается (максимум " + SUPPORTED_VERSION + ")");
         }
-        if (proto.getLessonsCount() == 0) {
-            throw new IllegalArgumentException("В файле нет занятий");
+        List<Lesson> result = new ArrayList<>(proto.getLessonsCount());
+        for (ScheduleProtobuf.Lesson item : proto.getLessonsList()) {
+            result.add(fromProto(item));
         }
-        return fromProto(proto.getLessons(0));
+        return result;
     }
 
     private static ScheduleProtobuf.Lesson toProto(Lesson lesson) {

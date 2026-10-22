@@ -8,12 +8,14 @@ import javafx.stage.Stage;
 import ru.university.schedule.gui.*;
 import ru.university.schedule.model.Editable;
 import ru.university.schedule.model.Lesson;
-import ru.university.schedule.serializer.Serializer;
+import ru.university.schedule.serializer.LoadResult;
+import ru.university.schedule.serializer.SkippedDialog;
 import ru.university.schedule.store.AvlLessonStore;
 import ru.university.schedule.store.LessonKey;
 
-import java.io.IOException;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 
@@ -100,11 +102,53 @@ public class Main extends Application
 
     @Override
     public void load() {
+        Files.chooseOpen(stage, "Загрузка расписания").ifPresent(choice -> {
+            try {
+                LoadResult result = choice.format().serializer().loadWithReport(choice.path());
+
+                store.clear();
+                int added = 0;
+                List<LoadResult.Skipped> skipped = new ArrayList<>(result.skipped());
+                for (int i = 0; i < result.lessons().size(); i++) {
+                    Lesson lesson = result.lessons().get(i);
+                    try {
+                        store.add(lesson);
+                        added++;
+                    } catch (IllegalArgumentException e) {
+                        skipped.add(new LoadResult.Skipped(result.numbers().get(i),
+                                "ключ занят: " + LessonKey.of(lesson)));
+                    }
+                }
+                skipped.sort(Comparator.comparingInt(LoadResult.Skipped::number));
+
+                currentFile = choice.path();
+                updateTitle();
+                status("Загружено: " + added + (skipped.isEmpty() ? "" : ", пропущено: " + skipped.size()));
+
+                if (!skipped.isEmpty()) {
+                    SkippedDialog.show(stage, skipped);
+                }
+            } catch (RuntimeException e) {
+                Dialogs.error(stage, "Ошибка загрузки", e.getMessage());
+            } finally {
+                refreshView();
+            }
+        });
     }
 
     @Override
     public void save() {
-
+        Files.chooseSave(stage, "Сохранение расписания").ifPresent(choice -> {
+            try {
+                List<Lesson> snapshot = store.snapshot();
+                choice.format().serializer().save(snapshot, choice.path());
+                currentFile = choice.path();
+                updateTitle();
+                status("Сохранено: " + snapshot.size() + " (" + choice.format().name() + ")");
+            } catch (RuntimeException e) {
+                Dialogs.error(stage, "Ошибка сохранения", e.getMessage());
+            }
+        });
     }
 
     @Override

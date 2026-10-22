@@ -9,6 +9,7 @@ import java.util.Optional;
 public enum FileFormat {
     JSON    ("JSON (*.json)",     "json",  new JsonSerializer()),
     XML     ("XML (*.xml)",       "xml",   new XmlSerializer()),
+    CSV     ("CSV (*.csv)",       "csv",   new CsvSerializer()),
     YAML    ("YAML (*.yaml)",     "yaml",  new YamlSerializer()),
     PROTOBUF("Protobuf (*.binpb)","binpb", new ProtobufSerializer());
 
@@ -24,6 +25,8 @@ public enum FileFormat {
 
     public Serializer serializer() { return serializer; }
 
+    public String extension() { return extension; }
+
     public FileChooser.ExtensionFilter filter() {
         return new FileChooser.ExtensionFilter(label, "*." + extension);
     }
@@ -33,6 +36,13 @@ public enum FileFormat {
     public static Optional<FileFormat> byExtension(String ext) {
         return Arrays.stream(values())
                 .filter(f -> f.extension.equalsIgnoreCase(ext))
+                .findFirst();
+    }
+
+    public static Optional<FileFormat> byFilter(FileChooser.ExtensionFilter filter) {
+        if (filter == null) return Optional.empty();
+        return Arrays.stream(values())
+                .filter(f -> f.label.equals(filter.getDescription()))
                 .findFirst();
     }
 }
