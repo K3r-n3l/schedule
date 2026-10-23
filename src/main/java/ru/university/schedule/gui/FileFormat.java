@@ -7,6 +7,7 @@ import java.util.Arrays;
 import java.util.Optional;
 
 public enum FileFormat {
+    CSV     ("CSV (*.csv)",      "csv",    new CsvSerializer()),
     BIN     ("Binary (*.bin)",   "bin",    new BinarySerializer()),
     JSON    ("JSON (*.json)",     "json",  new JsonSerializer()),
     XML     ("XML (*.xml)",       "xml",   new XmlSerializer()),

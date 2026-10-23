@@ -7,7 +7,6 @@ import java.util.List;
 
 
 public record LoadResult(List<Lesson> lessons, List<Integer> numbers, List<Skipped> skipped) {
-
     public record Skipped(int number, String reason) { }
 
     public static LoadResult of(List<Lesson> lessons) {
