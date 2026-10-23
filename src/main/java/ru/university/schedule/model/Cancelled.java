@@ -21,4 +21,16 @@ public class Cancelled extends Lesson {
     public UnsupportedOperationException readOnly() {
         return new UnsupportedOperationException("Занятие отменено. Только для чтения");
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        return baseEquals((Cancelled) o);
+    }
+
+    @Override
+    public int hashCode() {
+        return baseHash();
+    }
 }

@@ -1,4 +1,4 @@
-package ru.university.schedule.serializer;
+package ru.university.schedule.gui;
 
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.ReadOnlyStringWrapper;

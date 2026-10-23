@@ -9,7 +9,7 @@ import ru.university.schedule.gui.*;
 import ru.university.schedule.model.Editable;
 import ru.university.schedule.model.Lesson;
 import ru.university.schedule.serializer.LoadResult;
-import ru.university.schedule.serializer.SkippedDialog;
+import ru.university.schedule.gui.SkippedDialog;
 import ru.university.schedule.store.AvlLessonStore;
 import ru.university.schedule.store.LessonKey;
 
@@ -25,7 +25,6 @@ public class Main extends Application
     private static final double WINDOW_WIDTH = 1000;
     private static final double WINDOW_HEIGHT = 700;
     private static final String APP_TITLE = "Расписание занятий";
-    private static final int MAX_SKIPPED_IN_DIALOG = 20;
 
     private final AvlLessonStore store = new AvlLessonStore();
 
@@ -130,6 +129,7 @@ public class Main extends Application
                 }
             } catch (RuntimeException e) {
                 Dialogs.error(stage, "Ошибка загрузки", e.getMessage());
+                System.out.println(e.getMessage());
             } finally {
                 refreshView();
             }

@@ -2,6 +2,7 @@ package ru.university.schedule.model;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 
 public class Practice extends Lesson implements Editable {
     protected int subgroup;
@@ -33,4 +34,17 @@ public class Practice extends Lesson implements Editable {
 
     public int getSubgroup()              { return subgroup; }
     public void setSubgroup(int subgroup) { this.subgroup = subgroup; }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Practice other = (Practice) o;
+        return baseEquals(other) && subgroup == other.subgroup;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(dateTime, group, subject, room, teacher, subgroup);
+    }
 }

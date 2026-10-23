@@ -7,9 +7,9 @@ import java.util.Arrays;
 import java.util.Optional;
 
 public enum FileFormat {
+    BIN     ("Binary (*.bin)",   "bin",    new BinarySerializer()),
     JSON    ("JSON (*.json)",     "json",  new JsonSerializer()),
     XML     ("XML (*.xml)",       "xml",   new XmlSerializer()),
-    CSV     ("CSV (*.csv)",       "csv",   new CsvSerializer()),
     YAML    ("YAML (*.yaml)",     "yaml",  new YamlSerializer()),
     PROTOBUF("Protobuf (*.binpb)","binpb", new ProtobufSerializer());
 

@@ -14,6 +14,8 @@ import java.util.List;
 public class BinarySerializer implements Serializer {
     private static final String format = "bin";
 
+    public BinarySerializer() {}
+
     @Override
     public String format() {
         return format;

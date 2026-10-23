@@ -5,10 +5,7 @@ import ru.university.schedule.model.Lesson;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Результат загрузки: занятия, их порядковые номера в файле (1-based, параллельный список)
- * и пропущенные битые объекты с причиной.
- */
+
 public record LoadResult(List<Lesson> lessons, List<Integer> numbers, List<Skipped> skipped) {
 
     public record Skipped(int number, String reason) { }

@@ -7,6 +7,7 @@ import java.io.Serial;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @JsonTypeInfo(
         use = JsonTypeInfo.Id.NAME,
@@ -21,11 +22,11 @@ import java.util.List;
 public class Lesson implements java.io.Serializable {
     @Serial private static final long serialVersionUID = 1L;
 
-    private LocalDateTime dateTime;
-    private String group;
-    private String subject;
-    private String room;
-    private String teacher;
+    protected LocalDateTime dateTime;
+    protected String group;
+    protected String subject;
+    protected String room;
+    protected String teacher;
 
     public Lesson() {}
 
@@ -58,7 +59,17 @@ public class Lesson implements java.io.Serializable {
                 formatted(dateTime, group, subject, room, teacher);
     }
 
+    protected boolean baseEquals(Lesson other) {
+        return dateTime.equals(other.dateTime)
+                && Objects.equals(group, other.group)
+                && Objects.equals(subject, other.subject)
+                && Objects.equals(room, other.room)
+                && Objects.equals(teacher, other.teacher);
+    }
 
+    protected int baseHash() {
+        return Objects.hash(dateTime, group, subject, room, teacher);
+    }
 
     public LocalDateTime getDateTime()  { return dateTime; }
     public String getGroup()            { return group; }

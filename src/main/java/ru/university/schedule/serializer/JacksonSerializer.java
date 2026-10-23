@@ -1,5 +1,8 @@
 package ru.university.schedule.serializer;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.PropertyAccessor;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -28,6 +31,8 @@ public abstract class JacksonSerializer implements Serializer {
     public JacksonSerializer(ObjectMapper mapper, String format) {
         this.mapper = mapper;
         this.format = format;
+
+       mapper.enable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
 
         mapper.registerModule(new JavaTimeModule());
         mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
