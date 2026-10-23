@@ -71,6 +71,18 @@ public class Lesson implements java.io.Serializable {
         return Objects.hash(dateTime, group, subject, room, teacher);
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        return baseEquals((Lesson) o);
+    }
+
+    @Override
+    public int hashCode() {
+        return baseHash();
+    }
+
     public LocalDateTime getDateTime()  { return dateTime; }
     public String getGroup()            { return group; }
     public String getSubject()          { return subject; }
